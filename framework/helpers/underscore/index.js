@@ -32,7 +32,7 @@ _.mixin({
 		if (!obj) {
 			return;
 		}
-			
+
 		if (obj.length === +obj.length) {
 			for (var i = 0, l = obj.length; i < l; i++) {
 				if (iterator.call(context, obj[i], i, obj) === {}) {
@@ -69,7 +69,7 @@ _.mixin({
 	chunks: function(array, length) {
 		return [].concat.apply([],
 			array.map(function(elem, i) {
-				return i % length ? [] : [ array.slice(i,i + length) ];
+				return i % length ? [] : [ array.slice(i, i + length) ];
 			})
 		);
 	},
@@ -89,7 +89,7 @@ _.mixin({
 				_.each(obj, function(value, key) {
 					try {
 						first[ key ] = (_.isObject(value) && first[ key ]) ? _.merge(first[ key ], value) : value;
-					} catch(e) {
+					} catch (e) {
 						first[ key ] = value;
 					}
 				});
@@ -97,7 +97,7 @@ _.mixin({
 				first = obj;
 			}
 		});
-		
+
 		return first;
 	}
 });

@@ -19,7 +19,7 @@ module.exports = Nyama.Singleton({
 	/**
 	 * @constructor
 	 */
-	construct: function () {
+	construct: function() {
 		this.maxThreads = 200;
 		this.numThreads = 0;
 		this.attempts = 16;
@@ -32,7 +32,7 @@ module.exports = Nyama.Singleton({
 	 * @param {object} params
 	 * @param {function} callback
 	 */
-	init: function (params, callback) {
+	init: function(params, callback) {
 		if (params.useProxy) {
 			this.checkProxy(callback);
 		}
@@ -45,7 +45,7 @@ module.exports = Nyama.Singleton({
 	 * Check proxy ips for alive.
 	 * @param {function} rootCallback
 	 */
-	checkProxy: function (rootCallback) {
+	checkProxy: function(rootCallback) {
 		//	Read proxies list.
 		var f = _.fs.readFileSync(Nyama.app.getBasePath() + '/config/proxy.list'),
 			ips = f.toString().split("\n"),
@@ -58,15 +58,15 @@ module.exports = Nyama.Singleton({
 		this.maxThreads = 500;
 
 		//	Check proxies.
-		_.each(ips, function (ip) {
-			taskCallbacks.push(function (taskCallback) {
+		_.each(ips, function(ip) {
+			taskCallbacks.push(function(taskCallback) {
 				this.get('http://google.ru', {
 					proxy: 'http://' + ip,
 					attempts: 0,
 					logs: false,
 					timeout: 6000,
 					regexp: /Google/
-				}, function (error) {
+				}, function(error) {
 					++checked;
 
 					var progress = '[' + checked + '/' + count + '] ';
@@ -86,7 +86,7 @@ module.exports = Nyama.Singleton({
 			}.bind(this));
 		}, this);
 
-		_.async.parallel(taskCallbacks, function (error) {
+		_.async.parallel(taskCallbacks, function(error) {
 			if (error) {
 				_.intel.error(error);
 				return;
@@ -105,10 +105,10 @@ module.exports = Nyama.Singleton({
 	 * @param {Object} params
 	 * @param {Function} callback
 	 */
-	get: function (url, params, callback) {
+	get: function(url, params, callback) {
 		params = this.configure(url, params);
 
-		var interval = setInterval(function () {
+		var interval = setInterval(function() {
 			if (this.numThreads >= this.maxThreads) {
 				return;
 			}
@@ -120,7 +120,7 @@ module.exports = Nyama.Singleton({
 				_.intel.debug('Get page ' + url);
 			}
 
-			request(params, function (error, response, body) {
+			request(params, function(error, response, body) {
 				params.attempts = _.isNumber(params.attempts) ? params.attempts : this.attempts;
 
 				--this.numThreads;
@@ -166,7 +166,7 @@ module.exports = Nyama.Singleton({
 	 * @param {string} fileName
 	 * @param {object} params
 	 */
-	download: function (url, fileName, params) {
+	download: function(url, fileName, params) {
 		_.intel.debug('Download file ' + url + ' to ' + fileName);
 		request(this.configure(url, params)).pipe(_.fs.createWriteStream(fileName));
 	},
@@ -177,7 +177,7 @@ module.exports = Nyama.Singleton({
 	 * @param {object} params
 	 * @returns {object}
 	 */
-	configure: function (url, params) {
+	configure: function(url, params) {
 		return _.extend({
 			url: url,
 			type: 'GET',
@@ -194,7 +194,7 @@ module.exports = Nyama.Singleton({
 	/**
 	 * @returns {string|null} random proxy ip if proxy accepted.
 	 */
-	getRandomProxy: function () {
+	getRandomProxy: function() {
 		return this.aliveProxy.length ?
 			('http://' + this.aliveProxy[Math.floor(Math.random() * this.aliveProxy.length)]) : null;
 	},
@@ -202,7 +202,7 @@ module.exports = Nyama.Singleton({
 	/**
 	 * @returns {string|null} random user agent string if it is accepted.
 	 */
-	getRandomUserAgent: function () {
+	getRandomUserAgent: function() {
 		return this.userAgents.length ?
 			(this.userAgents[Math.floor(Math.random() * this.userAgents.length)]) : null;
 	}

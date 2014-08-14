@@ -12,7 +12,8 @@
  * Based on habrahabr user code.
  */
 module.exports = function(data) {
-	var constructor = function() {},
+	var constructor = function() {
+		},
 		prototype = {},
 		abstracts = data.__abstract || [],
 		statics = data.__static || {},
@@ -54,7 +55,8 @@ module.exports = function(data) {
 
 	//	Abstract methods.
 	_.each(abstracts, function(method) {
-		prototype[ method ] = function() {};
+		prototype[ method ] = function() {
+		};
 	});
 
 	delete data.construct;

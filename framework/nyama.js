@@ -9,8 +9,6 @@
 
 'use strict';
 
-var Class = require(__dirname + '/helpers/class.js');
-
 /**
  * @class Nyama
  *

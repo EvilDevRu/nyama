@@ -19,7 +19,7 @@ module.exports = {
 	 * @param {string} salt salt.
 	 * @return {string} hashed string.
 	 */
-	md5: function (string, salt) {
+	md5: function(string, salt) {
 		return crypto.createHmac('md5', salt || null).update(string).digest('hex');
 	},
 
@@ -29,7 +29,7 @@ module.exports = {
 	 * @param {string} salt salt.
 	 * @return {string} hashed string.
 	 */
-	sha1: function (string, salt) {
+	sha1: function(string, salt) {
 		return crypto.createHmac('sha1', salt || null).update(string).digest('hex');
 	}
 }
