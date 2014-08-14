@@ -1,0 +1,23 @@
+{
+	"name": "nyamaframework",
+	"version": "0.1.0",
+	"description": "MVC framework for parse content",
+	"main": "app.js",
+	"dependencies": {
+		"async": "0.9.*",
+		"underscore": "1.*.*",
+		"cheerio": "0.*.*",
+		"request": "2.*.*",
+		"intel": "1.*.*",
+		"crypto": "0.0.*"
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [
+		"mvc",
+		"parser"
+	],
+	"author": "Dmitriy Yurchenko <evildev@evildev.ru>",
+	"license": "BSD-3-Clause"
+}

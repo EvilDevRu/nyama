@@ -1,0 +1,20 @@
+{
+	globals: ['Nyama', '_'],
+	esnext: true,
+	bitwise: true,
+	camelcase: true,
+	curly: true,
+	eqeqeq: true,
+	forin: true,
+	latedef: true,
+	noarg: true,
+	noempty: true,
+	nonew: true,
+	undef: true,
+	unused: true,
+	boss: true,
+	eqnull: true,
+	strict: true,
+	node: true,
+	newcap: false
+}
