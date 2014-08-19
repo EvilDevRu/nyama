@@ -12,14 +12,14 @@ var cheerio = require('cheerio'),
 
 /**
  * Parser component.
- * This module is a wrapper of cheerio {@link https://github.com/MatthewMueller/cheerio}
+ * This module is a wrapper of cheerio {@see https://github.com/MatthewMueller/cheerio}
  * @property {array} aliveProxy
  */
-module.exports = Nyama.Singleton({
+Nyama.defineClass('Nyama.components.Parser', {
 	/**
 	 * @constructor
 	 */
-	construct: function() {
+	constructor: function() {
 		this.maxThreads = 200;
 		this.numThreads = 0;
 		this.attempts = 16;

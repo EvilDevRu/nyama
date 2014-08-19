@@ -9,6 +9,8 @@
 
 'use strict';
 
+var Class = require(__dirname + '/helpers/class.js');
+
 /**
  * @class Nyama
  *
@@ -17,24 +19,17 @@
  * @property fs fs
  * @property Application app
  */
-global.Nyama = require(__dirname + '/helpers/singleton.js')({
-	/**
-	 * Create application.
-	 * @param {object} params
-	 */
-	createApplication: function(params) {
-		this._mapClasses = {
-			Class: '/helpers/class.js',
-			Singleton: '/helpers/singleton.js',
-			Application: '/base/application.js'
-		};
+Class.defineClass('Nyama', {
+	__static: {
+		defineClass: Class.defineClass,
 
-		_.each(this._mapClasses, function(path, name) {
-			Nyama[name] = require(__dirname + path);
-		});
-
-		Nyama.app = new Nyama.Application(params || {});
-
-		return Nyama.app;
+		/**
+		 * Create application.
+		 * @param {object} params
+		 */
+		createApplication: function(params) {
+			require(__dirname + '/base/application.js');
+			return new Nyama.base.Application(params || {});
+		}
 	}
-}).getInstance();
+});

@@ -12,11 +12,12 @@
  * @private {object} _params
  * @class Application
  */
-module.exports = Nyama.Class({
+Nyama.defineClass('Nyama.base.Application', {
 	/**
 	 * @constructor
 	 */
-	construct: function(params) {
+	constructor: function(params) {
+		Nyama.app = this;
 		this.params = params;
 	},
 
@@ -47,9 +48,11 @@ module.exports = Nyama.Class({
 		_.each(files, function(file) {
 			tasks.push(function(callback) {
 				var name = _.fs.baseName(file, '.js'),
-					Module = require(file);
+					className = _.str.ucFirst(name);
 
-				this[name] = new Module();
+				require(file);
+
+				this[name] = new Nyama.components[className]();
 				if (_.isFunction(this[name].init)) {
 					this[name].init(_.isObject(this.params.components) ? this.params.components[name] : {}, callback);
 				}
@@ -71,12 +74,16 @@ module.exports = Nyama.Class({
 				this.end(1, error);
 			}
 
-			var commandName = _.first(process.argv.slice(2)) || 'index',
-				commandClass = require(this.getBasePath() + '/commands/' + commandName + '.js'),
-				command = new commandClass(),
-				parsedArgs = command.run.toString().match(/^function\s.*\((.*)\)/)[1].split(','),
+			var commandName = _.str.ucFirst(_.first(process.argv.slice(2)) || 'index'),
+				command,
+				parsedArgs,
 				_params = {},
 				params = [];
+
+			require(this.getBasePath() + '/commands/' + commandName.toLowerCase() + '.js');
+
+			command = new Nyama.commands[commandName]();
+			parsedArgs = command.run.toString().match(/^function\s.*\((.*)\)/)[1].split(',');
 
 			_.each(process.argv.slice(3), function(arg) {
 				if (arg.substr(0, 2) === '--') {

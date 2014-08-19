@@ -10,20 +10,20 @@
 
 'use strict';
 
-module.exports = Nyama.Class({
+Nyama.defineClass('Nyama.commands.Pogoda', {
 	/**
 	 * This is start method of application.
 	 * @param {Nyama.app} app
 	 * @param {string} city
 	 */
-	run: function (app, city) {
+	run: function(app, city) {
 		if (!city) {
 			app.end(1, 'You need set city name.');
 		}
 
 		var rootUrl = 'http://pogoda.yandex.ru/' + city + '/';
 
-		app.parser.get(rootUrl, {}, function (error, response, $) {
+		app.parser.get(rootUrl, {}, function(error, response, $) {
 			if (error) {
 				app.end(1, error);
 			}
