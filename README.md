@@ -11,6 +11,14 @@ cd /path_to_framework/framework
 npm install
 ```
 
+RUN
+---
+
+```
+cd /path_to_examples_folder/examples/simple
+node app.js pogoda --city=your_cuty_name
+```
+
 
 DIRECTORY STRUCTURE
 -------------------
