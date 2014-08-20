@@ -9,7 +9,9 @@
 		"cheerio": "0.*.*",
 		"request": "2.*.*",
 		"intel": "1.*.*",
-		"crypto": "0.0.*"
+		"crypto": "0.0.*",
+		"sequelize": "2.*.*",
+		"mysql": "2.*.*"
 	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
