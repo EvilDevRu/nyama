@@ -24,7 +24,6 @@ Nyama.defineClass('Nyama.components.Parser', {
 		this.numThreads = 0;
 		this.attempts = 16;
 		this.aliveProxy = [];
-		this.userAgents = _.fs.readFileSync(Nyama.app.getBasePath() + '/config/useragent.list').toString().split("\n");
 	},
 
 	/**
@@ -186,7 +185,7 @@ Nyama.defineClass('Nyama.components.Parser', {
 			proxy: this.getRandomProxy(),
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded',
-				'User-Agent': this.getRandomUserAgent()
+				'User-Agent': Nyama.app.utils.randomUA.get()
 			}
 		}, params);
 	},
@@ -197,13 +196,5 @@ Nyama.defineClass('Nyama.components.Parser', {
 	getRandomProxy: function() {
 		return this.aliveProxy.length ?
 			('http://' + this.aliveProxy[Math.floor(Math.random() * this.aliveProxy.length)]) : null;
-	},
-
-	/**
-	 * @returns {string|null} random user agent string if it is accepted.
-	 */
-	getRandomUserAgent: function() {
-		return this.userAgents.length ?
-			(this.userAgents[Math.floor(Math.random() * this.userAgents.length)]) : null;
 	}
 });

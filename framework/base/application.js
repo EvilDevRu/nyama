@@ -14,6 +14,11 @@
  */
 Nyama.defineClass('Nyama.base.Application', {
 	/**
+	 * @var {object} utils container.
+	 */
+	utils: {},
+
+	/**
 	 * @constructor
 	 */
 	constructor: function(params) {
@@ -33,18 +38,36 @@ Nyama.defineClass('Nyama.base.Application', {
 	 * @param {Function} initCallback
 	 */
 	init: function(initCallback) {
+		//	Load utils.
+		var utils = _.map(_.fs.readdirSync(__dirname + '/../utils'), function(file) {
+			return __dirname + '/../utils/' + file;
+		});
+
+		_.each(utils, function(file) {
+			var name = _.fs.baseName(file, '.js'),
+				className = _.str.ucFirst(name);
+
+			if (_.fs.isFile(file)) {
+				require(file);
+				this.utils[name] = new Nyama.utils[className]();
+			}
+		}, this);
+
 		//	Init components.
 		var tasks = [],
 			userComponentsPath = Nyama.app.getBasePath() + '/components',
 			files = _.extend(
+				//	Core components.
 				_.map(_.fs.readdirSync(__dirname + '/../components'), function(file) {
 					return __dirname + '/../components/' + file;
 				}),
+				//	User's components.
 				_.fs.isDir(userComponentsPath) ? _.map(_.fs.readdirSync(userComponentsPath), function(file) {
 					return Nyama.app.getBasePath() + '/components/' + file;
 				}) : []
 			);
 
+		//	Load components.
 		_.each(files, function(file) {
 			tasks.push(function(callback) {
 				var name = _.fs.baseName(file, '.js'),
