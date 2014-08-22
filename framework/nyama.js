@@ -34,6 +34,7 @@ Class.defineClass('Nyama', {
 		 */
 		createApplication: function(params) {
 			require(__dirname + '/base/application.js');
+			require(__dirname + '/base/utility.js');
 			return new Nyama.base.Application(params || {});
 		}
 	}

@@ -9,7 +9,15 @@ module.exports = {
 	basePath: __dirname + '/..',
 	components: {
 		parser: {
-			useProxy: false
+			useProxy: true
+		}
+	},
+	utils: {
+		proxy: {
+			fileName: __dirname + '/proxy.list',
+			url: 'http://google.ru',
+			regex: /Google/,
+			timeout: 6000
 		}
 	}
 };

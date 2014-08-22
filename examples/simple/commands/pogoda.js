@@ -29,6 +29,8 @@ Nyama.defineClass('Nyama.commands.Pogoda', {
 			}
 
 			_.intel.info('Weather in ' + _.str.ucFirst(city) + ': ' + $('.b-thermometer__now').text());
+
+			app.end();
 		});
 	}
 });

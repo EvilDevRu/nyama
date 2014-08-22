@@ -13,8 +13,11 @@ var randomUA = require('./libs/random_ua.js');
 /**
  * Random UserAgents generator utility.
  * @module Nyama.utils.randomUA
+ * @extends Nyama.base.Utility
  */
-Nyama.defineClass('Nyama.utils.RandomUA', {
+Nyama.defineClass('Nyama.utils.Useragent', {
+	__extends: Nyama.base.Utility,
+
 	/**
 	 * @returns {string} random UserAgent.
 	 */

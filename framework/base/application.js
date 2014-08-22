@@ -45,11 +45,12 @@ Nyama.defineClass('Nyama.base.Application', {
 
 		_.each(utils, function(file) {
 			var name = _.fs.baseName(file, '.js'),
-				className = _.str.ucFirst(name);
+				className = _.str.ucFirst(name),
+				params = _.isObject(this.params.utils) ? this.params.utils[name] : {};
 
 			if (_.fs.isFile(file)) {
 				require(file);
-				this.utils[name] = new Nyama.utils[className]();
+				this.utils[name] = new Nyama.utils[className](params);
 			}
 		}, this);
 

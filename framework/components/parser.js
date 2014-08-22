@@ -17,14 +17,19 @@ var cheerio = require('cheerio'),
  */
 Nyama.defineClass('Nyama.components.Parser', {
 	/**
-	 * @constructor
+	 * @var {number} count max threads.
 	 */
-	constructor: function() {
-		this.maxThreads = 200;
-		this.numThreads = 0;
-		this.attempts = 16;
-		this.aliveProxy = [];
-	},
+	maxThreads: 200,
+
+	/**
+	 * @var {number} active threads.
+	 */
+	numThreads: 0,
+
+	/**
+	 * @var {number} count attempts.
+	 */
+	attempts: 16,
 
 	/**
 	 * Init component.
@@ -33,69 +38,13 @@ Nyama.defineClass('Nyama.components.Parser', {
 	 */
 	init: function(params, callback) {
 		if (params.useProxy) {
-			this.checkProxy(callback);
+			Nyama.app.utils.proxy.check(function() {
+				callback();
+			}.bind(this));
 		}
 		else {
 			callback();
 		}
-	},
-
-	/**
-	 * Check proxy ips for alive.
-	 * @param {function} rootCallback
-	 */
-	checkProxy: function(rootCallback) {
-		//	Read proxies list.
-		var f = _.fs.readFileSync(Nyama.app.getBasePath() + '/config/proxy.list'),
-			ips = f.toString().split("\n"),
-			count = ips.length,
-			checked = 0,
-			maxThreads = this.maxThreads,
-			taskCallbacks = [];
-
-		_.intel.debug('Start checking proxy list..');
-		this.maxThreads = 500;
-
-		//	Check proxies.
-		_.each(ips, function(ip) {
-			taskCallbacks.push(function(taskCallback) {
-				this.get('http://google.ru', {
-					proxy: 'http://' + ip,
-					attempts: 0,
-					logs: false,
-					timeout: 6000,
-					regexp: /Google/
-				}, function(error) {
-					++checked;
-
-					var progress = '[' + checked + '/' + count + '] ';
-
-					if (!error) {
-						_.intel.debug(progress + 'Proxy\t' + ip + '\t\tis alive!');
-						if (_.indexOf(this.aliveProxy, ip) === -1) {
-							this.aliveProxy.push(ip);
-						}
-					}
-					/*else {
-					 _.intel.debug(progress + 'Proxy status\t' + ip + '\t\tfail...');
-					 }*/
-
-					taskCallback();
-				}.bind(this));
-			}.bind(this));
-		}, this);
-
-		_.async.parallel(taskCallbacks, function(error) {
-			if (error) {
-				_.intel.error(error);
-				return;
-			}
-
-			_.intel.debug('Alive proxy: ' + this.aliveProxy.length);
-
-			this.maxThreads = maxThreads;
-			rootCallback();
-		}.bind(this));
 	},
 
 	/**
@@ -148,9 +97,9 @@ Nyama.defineClass('Nyama.components.Parser', {
 
 				//	Switch ip of proxy address and useragent.
 				params = _.extend(params, {
-					proxy: this.getRandomProxy(),
+					proxy: Nyama.app.utils.proxy.get(),
 					headers: {
-						'User-Agent': this.getRandomUserAgent()
+						'User-Agent': Nyama.app.utils.useragent.get()
 					}
 				});
 
@@ -182,19 +131,11 @@ Nyama.defineClass('Nyama.components.Parser', {
 			type: 'GET',
 			timeout: 60000,
 			followAllRedirects: true,
-			proxy: this.getRandomProxy(),
+			proxy: Nyama.app.utils.proxy.get(),
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded',
-				'User-Agent': Nyama.app.utils.randomUA.get()
+				'User-Agent': Nyama.app.utils.useragent.get()
 			}
 		}, params);
-	},
-
-	/**
-	 * @returns {string|null} random proxy ip if proxy accepted.
-	 */
-	getRandomProxy: function() {
-		return this.aliveProxy.length ?
-			('http://' + this.aliveProxy[Math.floor(Math.random() * this.aliveProxy.length)]) : null;
 	}
 });
