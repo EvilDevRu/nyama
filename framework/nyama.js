@@ -24,6 +24,11 @@ Class.defineClass('Nyama', {
 		defineClass: Class.defineClass,
 
 		/**
+		 * @var {object} components container.
+		 */
+		components: {},
+
+		/**
 		 * Create application.
 		 * @param {object} params
 		 */

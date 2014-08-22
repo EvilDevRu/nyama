@@ -7,10 +7,6 @@
 
 'use strict';
 
-if (!Nyama.components) {
-	Nyama.components = {};
-}
-
 var Sequelize = Nyama.components.Sequelize = require('sequelize');
 
 /**
