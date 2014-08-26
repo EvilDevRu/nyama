@@ -113,10 +113,42 @@ Nyama.defineClass('Nyama.components.Parser', {
 	 * @param {string} url
 	 * @param {string} fileName
 	 * @param {object} params
+	 * @param {function} callback
 	 */
-	download: function(url, fileName, params) {
+	download: function(url, fileName, params, callback) {
 		_.intel.debug('Download file ' + url + ' to ' + fileName);
-		request(this.configure(url, params)).pipe(_.fs.createWriteStream(fileName));
+
+		callback = _.isFunction(callback) ? callback : function() {
+		};
+
+		var writeStream = _.fs.createWriteStream(fileName);
+
+		writeStream.on('error', function(error) {
+			if (error) {
+				_.intel.error('Error download file, try again! ' + error);
+				this.download(url, fileName, params, callback);
+				return;
+			}
+
+			callback();
+		}.bind(this));
+
+		writeStream.on('close', function(error) {
+			if (error) {
+				_.intel.error('Error write file, try again! ' + error);
+				this.download(url, fileName, params, callback);
+				return;
+			}
+
+			callback();
+		}.bind(this));
+
+		request(this.configure(url, params), function(error) {
+			if (error) {
+				_.intel.error('Error write file, try again! ' + error);
+				this.download(url, fileName, params, callback);
+			}
+		}.bind(this)).pipe(writeStream);
 	},
 
 	/**
