@@ -11,7 +11,9 @@
 		"intel": "1.*.*",
 		"crypto": "0.0.*",
 		"sequelize": "2.*.*",
-		"mysql": "2.*.*"
+		"mysql": "2.*.*",
+		"nodemailer": "1.2.*",
+		"nodemailer-smtp-transport": "0.1.*"
 	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
