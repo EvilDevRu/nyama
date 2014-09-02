@@ -9,7 +9,7 @@ module.exports = {
 	basePath: __dirname + '/..',
 	components: {
 		parser: {
-			useProxy: true
+			useProxy: false
 		}
 	},
 	utils: {
@@ -19,5 +19,11 @@ module.exports = {
 			regex: /Google/,
 			timeout: 6000
 		}
+	},
+	/**
+	 * Use as Nyama.app.getParam('_PARAM_NAME_')
+	 */
+	params: {
+		color: 'red'
 	}
 };

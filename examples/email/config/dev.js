@@ -23,6 +23,12 @@ module.exports = {
 					pass: 'PASSWORD'
 				}
 			}
+		},
+		/**
+		 * Use as Nyama.app.getParam('_PARAM_NAME_')
+		 */
+		params: {
+			emails: ['destination@mail.com']
 		}
 	}
 };

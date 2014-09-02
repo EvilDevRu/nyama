@@ -23,14 +23,14 @@ Nyama.defineClass('Nyama.base.Application', {
 	 */
 	constructor: function(params) {
 		Nyama.app = this;
-		this.params = params;
+		this.config = params;
 	},
 
 	/**
 	 * @returns {string} base path's application.
 	 */
 	getBasePath: function() {
-		return this.params.basePath || (__dirname + '/../../application');
+		return this.config.basePath || (__dirname + '/../../application');
 	},
 
 	/**
@@ -46,7 +46,7 @@ Nyama.defineClass('Nyama.base.Application', {
 		_.each(utils, function(file) {
 			var name = _.fs.baseName(file, '.js'),
 				className = _.str.ucFirst(name),
-				params = _.isObject(this.params.utils) ? this.params.utils[name] : {};
+				params = _.isObject(this.config.utils) ? this.config.utils[name] : {};
 
 			if (_.fs.isFile(file)) {
 				require(file);
@@ -78,7 +78,7 @@ Nyama.defineClass('Nyama.base.Application', {
 
 				this[name] = new Nyama.components[className]();
 				if (_.isFunction(this[name].init)) {
-					this[name].init(_.isObject(this.params.components) ? this.params.components[name] : {}, callback);
+					this[name].init(_.isObject(this.config.components) ? this.config.components[name] : {}, callback);
 				}
 				else {
 					callback();
@@ -141,5 +141,14 @@ Nyama.defineClass('Nyama.base.Application', {
 			_.intel.error(message);
 		}
 		process.exit(code || 1);
+	},
+
+	/**
+	 * Returns param value from config file.
+	 * @param {string} key
+	 * @param {mixin} defValue
+	 */
+	getParam: function(key, defValue) {
+		return _.isUndefined(this.config.params[key]) ? defValue : this.config.params[key];
 	}
 });

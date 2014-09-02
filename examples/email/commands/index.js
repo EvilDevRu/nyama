@@ -17,9 +17,9 @@ Nyama.defineClass('Nyama.commands.Index', {
 	 */
 	run: function(app) {
 		app.email.send({
-			to: '',
-			subject: 'hello',
-			text: 'hello world!'
+			to: app.getParam('emails'),
+			subject: 'Subject',
+			text: 'Text'
 		}, function(error) {
 			if (error) {
 				_.intel.info('I can\'t send email :( ' + error);
