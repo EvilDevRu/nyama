@@ -30,7 +30,9 @@ Nyama.defineClass('Nyama.commands.Index', {
 					app.end(1, error);
 				}
 
-				_.intel.info('Previously temprature: ' + model.values.temp + ' °C');
+				if (model) {
+					_.intel.info('Previously temprature: ' + model.values.temp + ' °C');
+				}
 
 				app.parser.get(rootUrl, {}, function(error, response, $) {
 					if (error) {
