@@ -116,11 +116,10 @@ Nyama.defineClass('Nyama.base.Application', {
 				}
 			});
 
-			_.each(parsedArgs, function(argument) {
+			//	Ignore first variable.
+			_.each(parsedArgs.slice(1), function(argument) {
 				argument = (argument || '').trim();
-				if (_params[argument]) {
-					params.push(_params[argument]);
-				}
+				params.push(_.isUndefined(_params[argument]) ? undefined : _params[argument]);
 			});
 
 			//	Add app to params
