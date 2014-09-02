@@ -38,7 +38,8 @@ Nyama.defineClass('Nyama.components.Parser', {
 	 */
 	init: function(params, callback) {
 		if (params.useProxy) {
-			Nyama.app.utils.proxy.check(function() {
+			Nyama.app.utils.proxy.check(function(error, aliveProxies) {
+				this.maxThreads = aliveProxies.length;
 				callback();
 			}.bind(this));
 		}
