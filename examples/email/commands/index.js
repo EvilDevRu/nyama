@@ -17,7 +17,6 @@ Nyama.defineClass('Nyama.commands.Index', {
 	 */
 	run: function(app) {
 		app.email.send({
-			from: '',
 			to: '',
 			subject: 'hello',
 			text: 'hello world!'

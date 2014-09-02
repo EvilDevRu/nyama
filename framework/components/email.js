@@ -12,8 +12,8 @@ var nodeMailer = require('nodemailer');
 /**
  * Email component.
  * @module Nyama.app.email
- * @link {https://github.com/andris9/nodemailer-smtp-transport}
- * @link {https://github.com/andris9/Nodemailer}
+ * @see https://github.com/andris9/nodemailer-smtp-transport
+ * @see https://github.com/andris9/Nodemailer
  * @provate {nodemailer} _transporter
  */
 Nyama.defineClass('Nyama.components.Email', {
@@ -27,6 +27,8 @@ Nyama.defineClass('Nyama.components.Email', {
 			callback();
 			return;
 		}
+
+		this.params = params;
 
 		if (!params.transport) {
 			callback('You need email transport');
@@ -50,6 +52,13 @@ Nyama.defineClass('Nyama.components.Email', {
 	 * @param {function} callback
 	 */
 	send: function(params, callback) {
-		this._transporter.sendMail(params, callback);
+		var emails = _.isArray(params.to) ? params.to : [params.to];
+		_.each(emails, function(email) {
+			this._transporter.sendMail(_.extend({
+				from: this.params.transport.auth.user
+			}, params, {
+				to: email
+			}), callback);
+		}, this);
 	}
 });
