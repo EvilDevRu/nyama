@@ -110,6 +110,17 @@ Nyama.defineClass('Nyama.components.Parser', {
 	},
 
 	/**
+	 * @param {String} url
+	 * @param {Object} params
+	 * @param {Function} callback
+	 */
+	post: function(url, params, callback) {
+		this.get(url, _.extend(params, {
+			type: 'POST'
+		}), callback);
+	},
+
+	/**
 	 * Download file and save on disk.
 	 * @param {string} url
 	 * @param {string} fileName
