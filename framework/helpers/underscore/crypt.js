@@ -20,7 +20,9 @@ module.exports = {
 	 * @return {string} hashed string.
 	 */
 	md5: function(string, salt) {
-		return crypto.createHmac('md5', salt || null).update(string).digest('hex');
+		return salt ?
+			crypto.createHmac('md5', salt).update(string).digest('hex') :
+			crypto.createHash('md5').update(string).digest('hex');
 	},
 
 	/**
