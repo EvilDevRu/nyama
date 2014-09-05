@@ -50,5 +50,24 @@ module.exports = {
 	lcFirst: function(string) {
 		string += '';
 		return string.charAt(0).toLowerCase() + string.substr(1);
+	},
+
+	/**
+	 * Convert string to latin and back.
+	 * @param {string} string
+	 * @param {boolean} isDecode
+	 * @return {string} decoded or encoded string.
+	 */
+	translit: function(string, isDecode) {
+		var rus = "щ   ш  ч  ц  ю  я  ё  ж  ъ  ы  э  а б в г д е з и й к л м н о п р с т у ф х ь".split(/ +/g),
+			eng = "shh sh ch cz yu ya yo zh `` y' e` a b v g d e z i j k l m n o p r s t u f x `".split(/ +/g),
+			x;
+
+		for (x = 0; x < rus.length; x++) {
+			string = string.split(isDecode ? eng[x] : rus[x]).join(isDecode ? rus[x] : eng[x]);
+			string = string.split(isDecode ? eng[x].toUpperCase() : rus[x].toUpperCase()).join(isDecode ? rus[x].toUpperCase() : eng[x].toUpperCase());
+		}
+
+		return string;
 	}
 };
