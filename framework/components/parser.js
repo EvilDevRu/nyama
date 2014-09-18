@@ -137,8 +137,11 @@ Nyama.defineClass('Nyama.components.Parser', {
 
 		writeStream.on('error', function(error) {
 			if (error) {
-				_.intel.error('Error download file, try again! ' + error);
-				this.download(url, fileName, params, callback);
+				_.fs.unlink(fileName, function(error) {
+					_.intel.error((error ? 'Error write file, try again! ' : 'Error delete file ') +
+					fileName + ' :: ' + error);
+					this.download(url, fileName, params, callback);
+				});
 				return;
 			}
 
@@ -147,8 +150,11 @@ Nyama.defineClass('Nyama.components.Parser', {
 
 		writeStream.on('close', function(error) {
 			if (error) {
-				_.intel.error('Error write file, try again! ' + error);
-				this.download(url, fileName, params, callback);
+				_.fs.unlink(fileName, function(error) {
+					_.intel.error((error ? 'Error write file, try again! ' : 'Error delete file ') +
+					fileName + ' :: ' + error);
+					this.download(url, fileName, params, callback);
+				});
 				return;
 			}
 
