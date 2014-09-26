@@ -10,6 +10,8 @@
 
 'use strict';
 
+var Q = require('q');
+
 /**
  * This is a start method of the application.
  * @param {Nyama.app} app
@@ -22,13 +24,14 @@ module.exports = function(app, params) {
 
 	var rootUrl = 'http://pogoda.yandex.ru/' + params.city + '/';
 
-	app.parser.get(rootUrl, {}, function(error, response, $) {
-		if (error) {
-			app.end(1, error);
-		}
-
+	Q.async(function
+	*()
+	{
+		var $ = yield app.parser.get(rootUrl, {});
 		_.intel.info('Weather in ' + _.str.ucFirst(params.city) + ': ' + $('.b-thermometer__now').text());
-
-		app.end();
+	}
+	)
+	().fail(function() {
+		console.log('fail');
 	});
 };

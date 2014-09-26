@@ -8,7 +8,8 @@
 'use strict';
 
 var cheerio = require('cheerio'),
-	request = require('request');
+	request = require('request'),
+	Q = require('q');
 
 /**
  * Parser component.
@@ -52,61 +53,82 @@ Nyama.defineClass('Nyama.components.Parser', {
 	 * Get content throw proxy if it possible.
 	 * @param {String} url
 	 * @param {Object} params
-	 * @param {Function} callback
 	 */
-	get: function(url, params, callback) {
-		params = this.configure(url, params);
+	get: function(url, params) {
+		/**
+		 * @param url
+		 * @param params
+		 * @param isGetAll
+		 * @returns {Promise.promise|*}
+		 */
+		function content(url, params, isGetAll) {
+			var defer = Q.defer();
 
-		var interval = setInterval(function() {
-			if (this.numThreads >= this.maxThreads) {
-				return;
-			}
-
-			clearInterval(interval);
-			++this.numThreads;
-
-			if (params.logs !== false) {
-				_.intel.debug('Get page ' + url);
-			}
-
-			request(params, function(error, response, body) {
-				params.attempts = _.isNumber(params.attempts) ? params.attempts : this.attempts;
-
-				--this.numThreads;
-
-				//	Check result.
-				if (!error && response && response.statusCode === 200) {
-					if (params.regexp && !params.regexp.test(body)) {
-					}
-					else {
-						callback(null, response, cheerio.load(body), body);
-						return;
-					}
-				}
-
-				//	Try again.
-				--params.attempts;
-				if (params.attempts <= 0) {
-					callback('Fail load page "' + url + '", can\'t try again :( [' + params.proxy + ']');
+			function loop() {
+				//	Check threads.
+				if (this.numThreads >= this.maxThreads) {
+					Q.when(Q.delay(500), loop.bind(this), defer.reject);
 					return;
 				}
 
-				if (params.log !== false) {
-					_.intel.error('Fail load page "' + url + '" try again (' + params.attempts + ')');
-					//callback('Fail load page "' + url + '" try again (' + params.attempts + ')');
+				++this.numThreads;
+
+				params = this.configure(url, params);
+
+				if (params.logs !== false) {
+					_.intel.debug('Get page ' + url);
 				}
 
-				//	Switch ip of proxy address and useragent.
-				params = _.extend(params, {
-					proxy: Nyama.app.utils.proxy.get(),
-					headers: {
-						'User-Agent': Nyama.app.utils.useragent.get()
-					}
-				});
+				//	Request.
+				request(params, function(error, response, body) {
+					params.attempts = _.isNumber(params.attempts) ? params.attempts : this.attempts;
 
-				this.get(url, params, callback);
-			}.bind(this));
-		}.bind(this), 250);
+					--this.numThreads;
+
+					//	Check result.
+					if (!error && response && response.statusCode === 200) {
+						if (params.regexp && !params.regexp.test(body)) {
+						}
+						else {
+							//	DONE!
+							defer.resolve(!isGetAll ? cheerio.load(body) : {
+								response: response,
+								$: cheerio.load(body),
+								body: body
+							});
+							return;
+						}
+					}
+
+					//	Try again.
+					--params.attempts;
+					if (params.attempts <= 0) {
+						defer.reject(new Error('Fail load page "' + url + '", can\'t try again :( [' + params.proxy + ']'));
+						return;
+					}
+
+					if (params.log !== false) {
+						_.intel.error('Fail load page "' + url + '" try again (' + params.attempts + ')');
+					}
+
+					//	Switch ip of proxy address and useragent.
+					params = _.extend(params, {
+						proxy: Nyama.app.utils.proxy.get(),
+						headers: {
+							'User-Agent': Nyama.app.utils.useragent.get()
+						}
+					});
+
+					Q.when(Q.delay(500), loop.bind(this), defer.reject);
+				}.bind(this));
+			};
+
+			Q.nextTick(loop.bind(this));
+
+			return defer.promise;
+		}
+
+		return content.call(this, url, params);
 	},
 
 	/**
@@ -114,10 +136,10 @@ Nyama.defineClass('Nyama.components.Parser', {
 	 * @param {Object} params
 	 * @param {Function} callback
 	 */
-	post: function(url, params, callback) {
-		this.get(url, _.extend(params, {
+	post: function(url, params) {
+		return this.get(url, _.extend(params, {
 			type: 'POST'
-		}), callback);
+		}));
 	},
 
 	/**
@@ -127,15 +149,79 @@ Nyama.defineClass('Nyama.components.Parser', {
 	 * @param {object} params
 	 * @param {function} callback
 	 */
-	download: function(url, fileName, params, callback) {
-		_.intel.debug('Download file ' + url + ' to ' + fileName);
+	download: function(url, fileName, params) {
+		/**
+		 * @param url
+		 * @param params
+		 * @param isGetAll
+		 * @returns {Promise.promise|*}
+		 */
+		function content(url, params, isGetAll) {
+			var defer = Q.defer();
 
-		callback = _.isFunction(callback) ? callback : function() {
-		};
+			function loop() {
+				//	Check threads.
+				if (this.numThreads >= this.maxThreads) {
+					Q.when(Q.delay(500), loop.bind(this), defer.reject);
+					return;
+				}
 
-		var writeStream = _.fs.createWriteStream(fileName);
+				++this.numThreads;
 
-		writeStream.on('error', function(error) {
+
+				//	DOWNLOAD FILE
+				var writeStream = _.fs.createWriteStream(fileName);
+
+				_.intel.debug('Download file ' + url + ' to ' + fileName);
+
+				writeStream.on('error', function(error) {
+					if (error) {
+						_.fs.unlink(fileName, function(error) {
+							_.intel.error((error ? 'Error write file, try again! ' : 'Error delete file ') +
+							fileName + ' :: ' + error);
+							Q.when(Q.delay(500), loop.bind(this), defer.reject);
+						});
+						return;
+					}
+				}.bind(this));
+
+				writeStream.on('close', function(error) {
+					if (error) {
+						_.fs.unlink(fileName, function(error) {
+							_.intel.error((error ? 'Error write file, try again! ' : 'Error delete file ') +
+							fileName + ' :: ' + error);
+							Q.when(Q.delay(500), loop.bind(this), defer.reject);
+						});
+						return;
+					}
+				}.bind(this));
+
+				request(this.configure(url, params), function(error) {
+					if (error) {
+						_.intel.error('Error write file, try again! ' + error);
+						Q.when(Q.delay(500), loop.bind(this), defer.reject);
+						return;
+					}
+
+					//	DONE!
+					defer.resolve();
+				}.bind(this)).pipe(writeStream);
+			}
+
+			Q.nextTick(loop.bind(this));
+
+			return defer.promise;
+		}
+
+		return content.call(this, url, params);
+
+
+		/*var writeStream = _.fs.createWriteStream(fileName),
+		 defer = Q.defer();
+
+		 _.intel.debug('Download file ' + url + ' to ' + fileName);
+
+		 writeStream.on('error', function(error) {
 			if (error) {
 				_.fs.unlink(fileName, function(error) {
 					_.intel.error((error ? 'Error write file, try again! ' : 'Error delete file ') +
@@ -166,7 +252,7 @@ Nyama.defineClass('Nyama.components.Parser', {
 				_.intel.error('Error write file, try again! ' + error);
 				this.download(url, fileName, params, callback);
 			}
-		}.bind(this)).pipe(writeStream);
+		 }.bind(this)).pipe(writeStream);*/
 	},
 
 	/**
