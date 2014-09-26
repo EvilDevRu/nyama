@@ -1,7 +1,7 @@
-Nyama Node.js Framework
+Nyama Node.js console tool
 =====
 
-MVC framework for parse website contents.
+Console tool for parse content.
 
 INSTALLATION
 ------------
