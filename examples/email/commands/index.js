@@ -10,23 +10,21 @@
 
 'use strict';
 
-Nyama.defineClass('Nyama.commands.Index', {
-	/**
-	 * This is start method of application.
-	 * @param {Nyama.app} app
-	 */
-	run: function(app) {
-		app.email.send({
-			to: app.getParam('emails'),
-			subject: 'Subject',
-			text: 'Text'
-		}, function(error) {
-			if (error) {
-				_.intel.info('I can\'t send email :( ' + error);
-			}
-			else {
-				_.intel.info('Yes! I send it!');
-			}
-		});
-	}
-});
+/**
+ * This is a start method of the application.
+ * @param {Nyama.app} app
+ */
+module.exports = function(app) {
+	app.email.send({
+		to: app.getParam('emails'),
+		subject: 'Subject',
+		text: 'Text'
+	}, function(error) {
+		if (error) {
+			_.intel.info('I can\'t send email :( ' + error);
+		}
+		else {
+			_.intel.info('Yes! I send it!');
+		}
+	});
+};

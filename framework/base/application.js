@@ -99,34 +99,18 @@ Nyama.defineClass('Nyama.base.Application', {
 			}
 
 			var commandName = _.str.ucFirst(_.first(process.argv.slice(2)) || 'index'),
-				command,
-				parsedArgs,
-				_params = {},
-				params = [];
-
-			require(this.getBasePath() + '/commands/' + commandName.toLowerCase() + '.js');
-
-			command = new Nyama.commands[commandName]();
-			parsedArgs = command.run.toString().match(/^function\s.*\((.*)\)/)[1].split(',');
+				params = {};
 
 			_.each(process.argv.slice(3), function(arg) {
 				if (arg.substr(0, 2) === '--') {
 					var _data = arg.split('=');
-					_params[_data[0].substr(2)] = _data[1];
+					params[_data[0].substr(2)] = _data[1];
 				}
 			});
 
-			//	Ignore first variable.
-			_.each(parsedArgs.slice(1), function(argument) {
-				argument = (argument || '').trim();
-				params.push(_.isUndefined(_params[argument]) ? undefined : _params[argument]);
-			});
-
-			//	Add app to params
-			params.unshift(this);
-
 			//	Execute!
-			command.run.apply(command, params);
+			require(this.getBasePath() + '/commands/' + commandName.toLowerCase() + '.js')
+				.apply(Nyama.app, [this, params]);
 		}.bind(this));
 	},
 

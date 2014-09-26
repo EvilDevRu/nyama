@@ -10,27 +10,25 @@
 
 'use strict';
 
-Nyama.defineClass('Nyama.commands.Pogoda', {
-	/**
-	 * This is start method of application.
-	 * @param {Nyama.app} app
-	 * @param {string} city
-	 */
-	run: function(app, city) {
-		if (!city) {
-			app.end(1, 'You need set city name.');
+/**
+ * This is a start method of the application.
+ * @param {Nyama.app} app
+ * @param {Object} params
+ */
+module.exports = function(app, params) {
+	if (!params.city) {
+		app.end(1, 'You need set city name.');
+	}
+
+	var rootUrl = 'http://pogoda.yandex.ru/' + params.city + '/';
+
+	app.parser.get(rootUrl, {}, function(error, response, $) {
+		if (error) {
+			app.end(1, error);
 		}
 
-		var rootUrl = 'http://pogoda.yandex.ru/' + city + '/';
+		_.intel.info('Weather in ' + _.str.ucFirst(params.city) + ': ' + $('.b-thermometer__now').text());
 
-		app.parser.get(rootUrl, {}, function(error, response, $) {
-			if (error) {
-				app.end(1, error);
-			}
-
-			_.intel.info('Weather in ' + _.str.ucFirst(city) + ': ' + $('.b-thermometer__now').text());
-
-			app.end();
-		});
-	}
-});
+		app.end();
+	});
+};
