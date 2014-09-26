@@ -4,7 +4,7 @@
 	"description": "Console tool for parse content",
 	"main": "app.js",
 	"engines": {
-		"node": ">=0.10.0"
+		"node": ">=0.11.2"
 	},
 	"dependencies": {
 		"async": "0.9.*",
