@@ -24,14 +24,12 @@ module.exports = function(app, params) {
 
 	var rootUrl = 'http://pogoda.yandex.ru/' + params.city + '/';
 
-	Q.async(function
-	*()
-	{
+	//																									@formatter:off
+	Q.async(function*() {
 		var $ = yield app.parser.get(rootUrl, {});
 		_.intel.info('Weather in ' + _.str.ucFirst(params.city) + ': ' + $('.b-thermometer__now').text());
-	}
-	)
-	().fail(function() {
+	})().fail(function() {
 		console.log('fail');
 	});
+	//																									@formatter:on
 };

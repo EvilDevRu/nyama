@@ -176,6 +176,7 @@ Nyama.defineClass('Nyama.components.Parser', {
 
 				writeStream.on('error', function(error) {
 					if (error) {
+						--this.numThreads;
 						_.fs.unlink(fileName, function(error) {
 							_.intel.error((error ? 'Error write file, try again! ' : 'Error delete file ') +
 							fileName + ' :: ' + error);
@@ -188,6 +189,7 @@ Nyama.defineClass('Nyama.components.Parser', {
 				writeStream.on('close', function(error) {
 					if (error) {
 						_.fs.unlink(fileName, function(error) {
+							--this.numThreads;
 							_.intel.error((error ? 'Error write file, try again! ' : 'Error delete file ') +
 							fileName + ' :: ' + error);
 							Q.when(Q.delay(500), loop.bind(this), defer.reject);
@@ -197,6 +199,8 @@ Nyama.defineClass('Nyama.components.Parser', {
 				}.bind(this));
 
 				request(this.configure(url, params), function(error) {
+					--this.numThreads;
+
 					if (error) {
 						_.intel.error('Error write file, try again! ' + error);
 						Q.when(Q.delay(500), loop.bind(this), defer.reject);
@@ -214,45 +218,6 @@ Nyama.defineClass('Nyama.components.Parser', {
 		}
 
 		return content.call(this, url, params);
-
-
-		/*var writeStream = _.fs.createWriteStream(fileName),
-		 defer = Q.defer();
-
-		 _.intel.debug('Download file ' + url + ' to ' + fileName);
-
-		 writeStream.on('error', function(error) {
-			if (error) {
-				_.fs.unlink(fileName, function(error) {
-					_.intel.error((error ? 'Error write file, try again! ' : 'Error delete file ') +
-					fileName + ' :: ' + error);
-					this.download(url, fileName, params, callback);
-				});
-				return;
-			}
-
-			callback();
-		}.bind(this));
-
-		writeStream.on('close', function(error) {
-			if (error) {
-				_.fs.unlink(fileName, function(error) {
-					_.intel.error((error ? 'Error write file, try again! ' : 'Error delete file ') +
-					fileName + ' :: ' + error);
-					this.download(url, fileName, params, callback);
-				});
-				return;
-			}
-
-			callback();
-		}.bind(this));
-
-		request(this.configure(url, params), function(error) {
-			if (error) {
-				_.intel.error('Error write file, try again! ' + error);
-				this.download(url, fileName, params, callback);
-			}
-		 }.bind(this)).pipe(writeStream);*/
 	},
 
 	/**
