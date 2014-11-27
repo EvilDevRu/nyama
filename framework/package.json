@@ -11,9 +11,9 @@
 		"underscore": "1.*.*",
 		"cheerio": "0.*.*",
 		"request": "2.*.*",
-		"intel": "1.*.*",
+		"intel": "1.0.0-b6",
 		"crypto": "0.0.*",
-		"sequelize": "2.*.*",
+		"sequelize": "2.0.0-rc2",
 		"mysql": "2.*.*",
 		"nodemailer": "1.2.*",
 		"nodemailer-smtp-transport": "0.1.*"
