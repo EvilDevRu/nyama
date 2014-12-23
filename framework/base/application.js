@@ -57,7 +57,7 @@ Nyama.defineClass('Nyama.base.Application', {
 		//	Init components.
 		var tasks = [],
 			userComponentsPath = Nyama.app.getBasePath() + '/components',
-			files = _.extend(
+			files = _.union(
 				//	Core components.
 				_.map(_.fs.readdirSync(__dirname + '/../components'), function(file) {
 					return __dirname + '/../components/' + file;
@@ -70,6 +70,7 @@ Nyama.defineClass('Nyama.base.Application', {
 
 		//	Load components.
 		_.each(files, function(file) {
+			_.intel.debug('Load component: ' + file);
 			tasks.push(function(callback) {
 				var name = _.fs.baseName(file, '.js'),
 					className = _.str.ucFirst(name);
