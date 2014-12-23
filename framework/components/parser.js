@@ -14,19 +14,9 @@ var cheerio = require('cheerio'),
 /**
  * Parser component.
  * This module is a wrapper of cheerio {@see https://github.com/MatthewMueller/cheerio}
- * @property {array} aliveProxy
+ * @property {Array} aliveProxy
  */
 Nyama.defineClass('Nyama.components.Parser', {
-	/**
-	 * @var {number} count max threads.
-	 */
-	maxThreads: 200,
-
-	/**
-	 * @var {number} active threads.
-	 */
-	numThreads: 0,
-
 	/**
 	 * @var {number} count attempts.
 	 */
@@ -39,10 +29,7 @@ Nyama.defineClass('Nyama.components.Parser', {
 	 */
 	init: function(params, callback) {
 		if (params.useProxy) {
-			Nyama.app.utils.proxy.check(function(error, aliveProxies) {
-				this.maxThreads = aliveProxies.length;
-				callback();
-			}.bind(this));
+			Nyama.app.utils.proxy.check(callback);
 		}
 		else {
 			callback();
@@ -65,14 +52,6 @@ Nyama.defineClass('Nyama.components.Parser', {
 			var defer = Q.defer();
 
 			function loop() {
-				//	Check threads.
-				if (this.numThreads >= this.maxThreads) {
-					Q.when(Q.delay(500), loop.bind(this), defer.reject);
-					return;
-				}
-
-				++this.numThreads;
-
 				params = this.configure(url, params);
 
 				if (params.logs !== false) {
@@ -82,8 +61,6 @@ Nyama.defineClass('Nyama.components.Parser', {
 				//	Request.
 				request(params, function(error, response, body) {
 					params.attempts = _.isNumber(params.attempts) ? params.attempts : this.attempts;
-
-					--this.numThreads;
 
 					//	Check result.
 					if (!error && response && response.statusCode === 200) {
@@ -121,7 +98,7 @@ Nyama.defineClass('Nyama.components.Parser', {
 
 					Q.when(Q.delay(500), loop.bind(this), defer.reject);
 				}.bind(this));
-			};
+			}
 
 			Q.nextTick(loop.bind(this));
 
@@ -134,7 +111,6 @@ Nyama.defineClass('Nyama.components.Parser', {
 	/**
 	 * @param {String} url
 	 * @param {Object} params
-	 * @param {Function} callback
 	 */
 	post: function(url, params) {
 		return this.get(url, _.extend(params, {
@@ -147,7 +123,6 @@ Nyama.defineClass('Nyama.components.Parser', {
 	 * @param {string} url
 	 * @param {string} fileName
 	 * @param {object} params
-	 * @param {function} callback
 	 */
 	download: function(url, fileName, params) {
 		/**
@@ -160,15 +135,6 @@ Nyama.defineClass('Nyama.components.Parser', {
 			var defer = Q.defer();
 
 			function loop() {
-				//	Check threads.
-				if (this.numThreads >= this.maxThreads) {
-					Q.when(Q.delay(500), loop.bind(this), defer.reject);
-					return;
-				}
-
-				++this.numThreads;
-
-
 				//	DOWNLOAD FILE
 				var writeStream = _.fs.createWriteStream(fileName);
 
@@ -176,31 +142,25 @@ Nyama.defineClass('Nyama.components.Parser', {
 
 				writeStream.on('error', function(error) {
 					if (error) {
-						--this.numThreads;
 						_.fs.unlink(fileName, function(error) {
 							_.intel.error((error ? 'Error write file, try again! ' : 'Error delete file ') +
 							fileName + ' :: ' + error);
 							Q.when(Q.delay(500), loop.bind(this), defer.reject);
 						});
-						return;
 					}
 				}.bind(this));
 
 				writeStream.on('close', function(error) {
 					if (error) {
 						_.fs.unlink(fileName, function(error) {
-							--this.numThreads;
 							_.intel.error((error ? 'Error write file, try again! ' : 'Error delete file ') +
 							fileName + ' :: ' + error);
 							Q.when(Q.delay(500), loop.bind(this), defer.reject);
 						});
-						return;
 					}
 				}.bind(this));
 
 				request(this.configure(url, params), function(error) {
-					--this.numThreads;
-
 					if (error) {
 						_.intel.error('Error write file, try again! ' + error);
 						Q.when(Q.delay(500), loop.bind(this), defer.reject);
@@ -230,7 +190,7 @@ Nyama.defineClass('Nyama.components.Parser', {
 		return _.extend({
 			url: url,
 			type: 'GET',
-			timeout: 60000,
+			timeout: 30000,
 			followAllRedirects: true,
 			proxy: Nyama.app.utils.proxy.get(),
 			headers: {
