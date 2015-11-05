@@ -1,0 +1,22 @@
+{
+  "name": "nyama",
+  "version": "1.0.0",
+  "description": "Console tool",
+  "main": "app.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EvilDevRu/nyama.git"
+  },
+  "author": "Dmitriy Yurchenko <evildev@evildev.ru>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/EvilDevRu/nyama/issues"
+  },
+  "homepage": "https://github.com/EvilDevRu/nyama#readme"
+}
