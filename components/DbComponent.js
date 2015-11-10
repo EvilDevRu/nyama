@@ -71,6 +71,9 @@ module.exports = function() {
 					}.bind(this));
 				}.bind(this));
 		}
+		else {
+			defer.resolve();
+		}
 
 		return defer.promise;
 	};
@@ -83,4 +86,4 @@ module.exports = function() {
 		var model = this._models[name];
 		return this._sequelize.define(name, model.columns, model.options);
 	};
-}
+};
