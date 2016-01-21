@@ -3,6 +3,8 @@
  * @license MIT
  */
 
+'use strict';
+
 //	Load modules.
 require('./helpers/index.js');
 
@@ -15,7 +17,7 @@ global.Nyama = new (function() {
 
 	/**
 	 * Create a new application.
-	 * @param {object} cfg
+	 * @param {object} config
 	 */
 	this.createApplication = function(config) {
 		var defer = _.Q.defer();

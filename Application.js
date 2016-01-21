@@ -3,12 +3,12 @@
  * @license MIT
  */
 
+'use strict';
+
 /**
  * @class Application
  */
 module.exports = function(config) {
-	var components = {};
-
 	/**
 	 * Initialize components.
 	 */
@@ -22,19 +22,22 @@ module.exports = function(config) {
 			);
 
 			yield _.Q.spawnMap(files, function*(file) {
-				var name = _.io.baseName(file, 'Component.js'),
+				var name = _.io.baseName(file, 'Component.js').toLowerCase(),
 					Component = require(file);
 
-				console.info('Load component:', name);
+                //  If component have not config then don't load.
+                if (!_.isUndefined(config.components[name]) && config.components[name] !== false) {
+                    console.info('Load component:', name);
 
-				this[name.toLowerCase()] = new Component();
-				if (_.isFunction(this[name.toLowerCase()].init)) {
-					yield this[name.toLowerCase()].init(config);
-				}
+                    this[name] = new Component();
+                    if (_.isFunction(this[name].init)) {
+                        yield this[name].init(config);
+                    }
+                }
 			}, this);
 
 			defer.resolve();
-		}, this)
+		}, this);
 
 		return defer.promise;
 	}.bind(this);
@@ -48,8 +51,8 @@ module.exports = function(config) {
 		_.Q.spawn(function*() {
 			yield initComponents();
 			defer.resolve();
-		})
+		});
 
 		return defer.promise;
-	}
+	};
 };
